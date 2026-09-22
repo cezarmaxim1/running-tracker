@@ -1,0 +1,1010 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Running Dashboard</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj48cmVjdCB3aWR0aD0iNTEyIiBoZWlnaHQ9IjUxMiIgcng9IjExNSIgZmlsbD0iIzEwQjk4MSIvPjxwYXRoIGQ9Ik0xOTAgMzUwbDUwLTcwbC00MC02MGw2MC04MGw2MCA2MGwtNDAgNjBsNTAgOTB6IiBmaWxsPSIjRkZGRkZGIi8+PC9zdmc+">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Inter', sans-serif; background-color: #F8FAFC; color: #0F172A; }
+    .custom-scrollbar::-webkit-scrollbar { height: 6px; width: 6px; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 4px; }
+  </style>
+</head>
+<body class="p-3 md:p-6 lg:p-8">
+  <div class="max-w-7xl mx-auto space-y-6">
+
+    <!-- ANTET -->
+    <header class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200 flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div class="flex items-center gap-3">
+        <div class="w-12 h-12 rounded-2xl bg-emerald-600 flex items-center justify-center text-white text-2xl shadow-md shadow-emerald-200">
+          🏃‍♂️
+        </div>
+        <div>
+          <h1 class="text-xl md:text-2xl font-black text-slate-900 tracking-tight">Training Plan</h1>
+          <p class="text-xs md:text-sm text-slate-500 font-medium">Calendar </p>
+        </div>
+      </div>
+
+      <div class="flex flex-wrap items-center gap-2">
+        <!-- BUTOANE NAVIGARE TABEL PRINCIPAL DE SUS (5 SĂPTĂMÂNI) -->
+        <div class="flex items-center bg-slate-100 p-1 rounded-2xl border border-slate-200 shadow-inner">
+          <button type="button" onclick="navigateMainWeeks(-1)" class="w-9 h-9 flex items-center justify-center bg-white hover:bg-slate-200 text-slate-700 font-black rounded-xl shadow-sm transition active:scale-95" title="Săptămânile anterioare">
+            ‹
+          </button>
+          <span id="mainWeekRangeLabel" class="px-3 text-xs md:text-sm font-extrabold text-slate-700 select-none">
+            Săpt 1 - 5
+          </span>
+          <button type="button" onclick="navigateMainWeeks(1)" class="w-9 h-9 flex items-center justify-center bg-white hover:bg-slate-200 text-slate-700 font-black rounded-xl shadow-sm transition active:scale-95" title="Săptămânile următoare">
+            ›
+          </button>
+        </div>
+
+        <button onclick="addNewWeekPrompt()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs md:text-sm px-3.5 py-2.5 rounded-xl shadow-sm transition active:scale-95 flex items-center gap-1.5" title="Adaugă o săptămână nouă">
+          <span>➕</span> <span>Săptămână nouă</span>
+        </button>
+        <button onclick="deleteWeekPrompt()" class="bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 font-bold text-xs md:text-sm px-3 py-2.5 rounded-xl shadow-sm transition active:scale-95 flex items-center gap-1" title="Șterge o săptămână">
+          <span>🗑️</span> <span class="hidden sm:inline">Șterge săptămână</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- 1. TABELUL PRINCIPAL: PROGRAM PE ZILE (5 COLOANE SĂPTĂMÂNALE) -->
+    <section class="bg-white rounded-2xl p-4 md:p-6 border border-slate-200 shadow-sm space-y-4">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-slate-100">
+        <div>
+          <h2 class="text-sm font-bold text-slate-900 uppercase tracking-wider flex items-center gap-2">
+            <span>🗓️</span> Program Săptămânal pe Zile (5 Coloane Vizibile)
+          </h2>
+          <p class="text-xs text-slate-500">Afișează antrenamentul, distanța efectivă (km), ritmul și pauza</p>
+        </div>
+        <span class="text-xs font-semibold px-2.5 py-1 bg-emerald-50 text-emerald-700 rounded-lg border border-emerald-200 self-start sm:self-auto">
+          Salvat local ✓
+        </span>
+      </div>
+
+      <div class="overflow-x-auto custom-scrollbar">
+        <table class="w-full text-left border-collapse min-w-[780px]">
+          <thead id="weeklyTableHead" class="bg-slate-50 border-b border-slate-200"></thead>
+          <tbody id="weeklyTableBody" class="divide-y divide-slate-100 text-xs"></tbody>
+          <tfoot id="weeklyTableFoot" class="border-t-2 border-slate-300 bg-slate-50 font-black text-xs"></tfoot>
+        </table>
+      </div>
+    </section>
+
+    <!-- 2. SECȚIUNE GRAFICE DE VOLUM (ALERGARE KM & INDOOR BIKE TIMP) - 10 COLOANE INDEPENDENTE -->
+    <section class="bg-white rounded-2xl p-4 md:p-6 border border-slate-200 shadow-sm space-y-5">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100">
+        <div>
+          <h2 class="text-sm font-bold text-slate-900 uppercase tracking-wider flex items-center gap-2">
+            <span>📊</span> Volume Săptămânale (Alergare & Indoor Bike)
+          </h2>
+          <p class="text-xs text-slate-500">Vizualizare comparativă pe 10 săptămâni, independentă de calendarul de sus</p>
+        </div>
+
+        <!-- BUTOANE NAVIGARE DEDICATE CELOR 2 GRAFICE DE VOLUM (10 SĂPTĂMÂNI) -->
+        <div class="flex items-center bg-slate-100 p-1 rounded-2xl border border-slate-200 shadow-inner self-start sm:self-auto">
+          <button type="button" onclick="navigateVolumeSection(-1)" class="w-8 h-8 flex items-center justify-center bg-white hover:bg-slate-200 text-slate-700 font-black rounded-xl shadow-sm transition active:scale-95" title="Săptămâni anterioare volume">
+            ‹
+          </button>
+          <span id="volumeRangeLabel" class="px-3 text-xs font-extrabold text-slate-700 select-none min-w-[110px] text-center">
+            10 Săptămâni
+          </span>
+          <button type="button" onclick="navigateVolumeSection(1)" class="w-8 h-8 flex items-center justify-center bg-white hover:bg-slate-200 text-slate-700 font-black rounded-xl shadow-sm transition active:scale-95" title="Săptămâni următoare volume">
+            ›
+          </button>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- VOLUM SĂPTĂMÂNAL ALERGARE (KM) -->
+        <div class="space-y-2">
+          <div class="flex items-center justify-between pb-1">
+            <h3 class="text-xs font-bold uppercase tracking-wider text-slate-800 flex items-center gap-1.5">
+              <span>🏃</span> Total KM Alergare
+            </h3>
+            <span class="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full">Alergare</span>
+          </div>
+          <div class="h-60 w-full">
+            <canvas id="runningVolumeChart"></canvas>
+          </div>
+        </div>
+
+        <!-- INDOOR BIKE (STRICT PE BAZĂ DE TIMP / DURATĂ) -->
+        <div class="space-y-2">
+          <div class="flex items-center justify-between pb-1">
+            <h3 class="text-xs font-bold uppercase tracking-wider text-slate-800 flex items-center gap-1.5">
+              <span>🚴‍♂️</span> Timp Total Indoor Bike (Minute)
+            </h3>
+            <span class="text-[10px] font-bold text-sky-600 bg-sky-50 px-2 py-0.5 rounded-full">Ciclism</span>
+          </div>
+          <div class="h-60 w-full">
+            <canvas id="bikeVolumeChart"></canvas>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. GRAFIC EVOLUȚIE INTERVALE (12 COLOANE CU NAVIGARE SEPARATĂ) -->
+    <section class="bg-white rounded-2xl p-4 md:p-6 border border-slate-200 shadow-sm space-y-4">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-2 border-b border-slate-100">
+        <div>
+          <h2 class="text-sm font-bold text-slate-900 uppercase tracking-wider flex items-center gap-2">
+            <span>📈</span> Grafic Evoluție Ritm Intervale (15 Coloane)
+          </h2>
+          <p class="text-xs text-slate-500">Pace / Viteză pe serii (10x400m, 4x1000m, 3x2000m, 5K) • Navigare independentă</p>
+        </div>
+        
+        <!-- BUTOANE NAVIGARE DOAR PENTRU GRAFICUL DE INTERVALE (15 SĂPTĂMÂNI) -->
+        <div class="flex items-center bg-slate-100 p-1 rounded-2xl border border-slate-200 shadow-inner self-start sm:self-auto">
+          <button type="button" onclick="navigateIntervalsChart(-1)" class="w-8 h-8 flex items-center justify-center bg-white hover:bg-slate-200 text-slate-700 font-black rounded-xl shadow-sm transition active:scale-95" title="Săptămâni anterioare grafic">
+            ‹
+          </button>
+          <span id="intervalsChartRangeLabel" class="px-3 text-xs font-extrabold text-slate-700 select-none min-w-[110px] text-center">
+            15 Săpt
+          </span>
+          <button type="button" onclick="navigateIntervalsChart(1)" class="w-8 h-8 flex items-center justify-center bg-white hover:bg-slate-200 text-slate-700 font-black rounded-xl shadow-sm transition active:scale-95" title="Săptămâni următoare grafic">
+            ›
+          </button>
+        </div>
+      </div>
+
+      <div class="h-64 w-full">
+        <canvas id="intervalsTrendChart"></canvas>
+      </div>
+    </section>
+
+    <!-- 4. TABEL REZUMAT INTERVALE (9 COLOANE CU NAVIGARE SEPARATĂ) -->
+    <section class="bg-white rounded-2xl p-4 md:p-6 border border-slate-200 shadow-sm space-y-4">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-2 border-b border-slate-100">
+        <div>
+          <h2 class="text-sm font-bold text-slate-900 uppercase tracking-wider flex items-center gap-2">
+            <span>⚡</span> Tabel Statistici Intervale (9 Coloane)
+          </h2>
+          <p class="text-xs text-slate-500">Valorile exacte de ritm pe fiecare săptămână • Click pe celulă pentru ajustare manuală</p>
+        </div>
+        
+        <!-- BUTOANE NAVIGARE DOAR PENTRU TABELUL DE INTERVALE (9 SĂPTĂMÂNI) -->
+        <div class="flex items-center bg-slate-100 p-1 rounded-2xl border border-slate-200 shadow-inner self-start sm:self-auto">
+          <button type="button" onclick="navigateIntervalsTable(-1)" class="w-8 h-8 flex items-center justify-center bg-white hover:bg-slate-200 text-slate-700 font-black rounded-xl shadow-sm transition active:scale-95" title="Săptămâni anterioare tabel">
+            ‹
+          </button>
+          <span id="intervalsTableRangeLabel" class="px-3 text-xs font-extrabold text-slate-700 select-none min-w-[110px] text-center">
+            9 Săpt
+          </span>
+          <button type="button" onclick="navigateIntervalsTable(1)" class="w-8 h-8 flex items-center justify-center bg-white hover:bg-slate-200 text-slate-700 font-black rounded-xl shadow-sm transition active:scale-95" title="Săptămâni următoare tabel">
+            ›
+          </button>
+        </div>
+      </div>
+
+      <div class="overflow-x-auto custom-scrollbar">
+        <table class="w-full text-left text-xs border border-slate-200 rounded-xl overflow-hidden min-w-[700px]">
+          <thead id="intervalsTableHead" class="bg-slate-100 text-slate-700 font-bold uppercase text-[11px]"></thead>
+          <tbody id="intervalsTableBody" class="divide-y divide-slate-200 font-medium"></tbody>
+        </table>
+      </div>
+    </section>
+
+  </div>
+
+  <script>
+    const INITIAL_PLAN = [
+      {
+        id: "w1",
+        label: "7 - 14 Iun",
+        month: "IUNIE",
+        days: {
+          "Luni": { workout: "8x400m", pace: "4:00/km", rest: "60s", km: 4 },
+          "Marți": { workout: "Rest", pace: "", rest: "", km: 0 },
+          "Miercuri": { workout: "10k easy", pace: "5:20/km", rest: "", km: 10 },
+          "Joi": { workout: "Rest", pace: "", rest: "", km: 0 },
+          "Vineri": { workout: "5k", pace: "4:46/km", rest: "", km: 5 },
+          "Sâmbătă": { workout: "13k", pace: "5:15/km", rest: "", km: 13 },
+          "Duminică": { workout: "Rest", pace: "", rest: "", km: 0 }
+        },
+        bike: { km: 0, min: 0 },
+        stats: { "400m": "4:00", "1000m": "", "2000m": "", "5k": "4:46" }
+      },
+      {
+        id: "w2",
+        label: "15 - 21 Iun",
+        month: "IUNIE",
+        days: {
+          "Luni": { workout: "4x1000m", pace: "4:15/km", rest: "1:30", km: 4 },
+          "Marți": { workout: "Rest", pace: "", rest: "", km: 0 },
+          "Miercuri": { workout: "8k", pace: "5:25/km", rest: "", km: 8 },
+          "Joi": { workout: "Rest", pace: "", rest: "", km: 0 },
+          "Vineri": { workout: "3x2000m", pace: "4:30/km", rest: "2:00", km: 6 },
+          "Sâmbătă": { workout: "Rest", pace: "", rest: "", km: 0 },
+          "Duminică": { workout: "14k", pace: "5:10/km", rest: "", km: 14 }
+        },
+        bike: { km: 0, min: 0 },
+        stats: { "400m": "", "1000m": "4:15", "2000m": "4:30", "5k": "" }
+      },
+      {
+        id: "w3",
+        label: "22 - 28 Iun",
+        month: "IUNIE",
+        days: {
+          "Luni": { workout: "10x400m", pace: "4:10/km", rest: "60s", km: 4 },
+          "Marți": { workout: "Rest", pace: "", rest: "", km: 0 },
+          "Miercuri": { workout: "8k", pace: "5:25/km", rest: "", km: 8 },
+          "Joi": { workout: "5k", pace: "4:42/km", rest: "", km: 5 },
+          "Vineri": { workout: "Rest", pace: "", rest: "", km: 0 },
+          "Sâmbătă": { workout: "15k", pace: "5:10/km", rest: "", km: 15 },
+          "Duminică": { workout: "Rest", pace: "", rest: "", km: 0 }
+        },
+        bike: { km: 0, min: 0 },
+        stats: { "400m": "4:10", "1000m": "", "2000m": "", "5k": "4:42" }
+      },
+      {
+        id: "w4",
+        label: "29 Iun - 5 Iul",
+        month: "IUNIE",
+        days: {
+          "Luni": { workout: "Rest", pace: "", rest: "", km: 0 },
+          "Marți": { workout: "Rest", pace: "", rest: "", km: 0 },
+          "Miercuri": { workout: "3k easy", pace: "5:30/km", rest: "", km: 3 },
+          "Joi": { workout: "5k tempo", pace: "4:34/km", rest: "", km: 5 },
+          "Vineri": { workout: "4x1000m + 4k", pace: "4:14/km", rest: "1:30", km: 8 },
+          "Sâmbătă": { workout: "Rest", pace: "", rest: "", km: 0 },
+          "Duminică": { workout: "3x2000m + 3k", pace: "4:34/km", rest: "2:00", km: 9 }
+        },
+        bike: { km: 0, min: 0 },
+        stats: { "400m": "", "1000m": "4:14", "2000m": "4:34", "5k": "" }
+      },
+      {
+        id: "w5",
+        label: "6 - 12 Iul",
+        month: "IULIE",
+        days: {
+          "Luni": { workout: "10x400m", pace: "4:10/km", rest: "60s", km: 4 },
+          "Marți": { workout: "Rest", pace: "", rest: "", km: 0 },
+          "Miercuri": { workout: "5k", pace: "5:15/km", rest: "", km: 5 },
+          "Joi": { workout: "8k", pace: "5:20/km", rest: "", km: 8 },
+          "Vineri": { workout: "Rest", pace: "", rest: "", km: 0 },
+          "Sâmbătă": { workout: "15k", pace: "5:05/km", rest: "", km: 15 },
+          "Duminică": { workout: "Rest", pace: "", rest: "", km: 0 }
+        },
+        bike: { km: 0, min: 0 },
+        stats: { "400m": "4:10", "1000m": "", "2000m": "", "5k": "" }
+      },
+      {
+        id: "w6",
+        label: "13 - 19 Iul",
+        month: "IULIE",
+        days: {
+          "Luni": { workout: "3x2000m", pace: "4:30/km", rest: "2:00", km: 6 },
+          "Marți": { workout: "7k", pace: "5:20/km", rest: "", km: 7 },
+          "Miercuri": { workout: "Rest", pace: "", rest: "", km: 0 },
+          "Joi": { workout: "4x1000m", pace: "4:11/km", rest: "1:30", km: 4 },
+          "Vineri": { workout: "Rest", pace: "", rest: "", km: 0 },
+          "Sâmbătă": { workout: "16k", pace: "5:05/km", rest: "", km: 16 },
+          "Duminică": { workout: "Rest", pace: "", rest: "", km: 0 }
+        },
+        bike: { km: 0, min: 0 },
+        stats: { "400m": "", "1000m": "4:11", "2000m": "4:30", "5k": "" }
+      },
+      {
+        id: "w7",
+        label: "20 - 26 Iul",
+        month: "IULIE",
+        days: {
+          "Luni": { workout: "10x400m", pace: "4:07/km", rest: "60s", km: 4 },
+          "Marți": { workout: "Rest", pace: "", rest: "", km: 0 },
+          "Miercuri": { workout: "6k tempo", pace: "4:30/km", rest: "", km: 6 },
+          "Joi": { workout: "6k", pace: "5:15/km", rest: "", km: 6 },
+          "Vineri": { workout: "Rest", pace: "", rest: "", km: 0 },
+          "Sâmbătă": { workout: "17k", pace: "5:00/km", rest: "", km: 17 },
+          "Duminică": { workout: "Rest", pace: "", rest: "", km: 0 }
+        },
+        bike: { km: 0, min: 0 },
+        stats: { "400m": "4:07", "1000m": "", "2000m": "", "5k": "4:26 PB" }
+      },
+      {
+        id: "w8",
+        label: "27 Iul - 2 Aug",
+        month: "IULIE",
+        days: {
+          "Luni": { workout: "3x2000m", pace: "4:26/km", rest: "2:00", km: 6 },
+          "Marți": { workout: "Rest", pace: "", rest: "", km: 0 },
+          "Miercuri": { workout: "5k", pace: "5:15/km", rest: "", km: 5 },
+          "Joi": { workout: "Rest", pace: "", rest: "", km: 0 },
+          "Vineri": { workout: "4x1000m", pace: "4:11/km", rest: "1:30", km: 4 },
+          "Sâmbătă": { workout: "Rest", pace: "", rest: "", km: 0 },
+          "Duminică": { workout: "15k", pace: "5:00/km", rest: "", km: 15 }
+        },
+        bike: { km: 0, min: 0 },
+        stats: { "400m": "", "1000m": "4:11", "2000m": "4:26", "5k": "" }
+      },
+      {
+        id: "w9",
+        label: "3 - 9 Aug",
+        month: "AUGUST",
+        days: {
+          "Luni": { workout: "10x400m", pace: "3:55/km", rest: "60s", km: 4 },
+          "Marți": { workout: "5k tempo", pace: "4:35/km", rest: "", km: 5 },
+          "Miercuri": { workout: "Rest", pace: "", rest: "", km: 0 },
+          "Joi": { workout: "3k", pace: "5:20/km", rest: "", km: 3 },
+          "Vineri": { workout: "Rest", pace: "", rest: "", km: 0 },
+          "Sâmbătă": { workout: "17k", pace: "4:55/km", rest: "", km: 17 },
+          "Duminică": { workout: "5k", pace: "5:10/km", rest: "", km: 5 }
+        },
+        bike: { km: 0, min: 0 },
+        stats: { "400m": "3:55", "1000m": "", "2000m": "", "5k": "4:35" }
+      },
+      {
+        id: "w10",
+        label: "10 - 16 Aug",
+        month: "AUGUST",
+        days: {
+          "Luni": { workout: "3x2000m", pace: "4:27/km", rest: "1:30", km: 6 },
+          "Marți": { workout: "Rest", pace: "", rest: "", km: 0 },
+          "Miercuri": { workout: "4x1000m", pace: "4:07/km", rest: "1:30", km: 4 },
+          "Joi": { workout: "Rest", pace: "", rest: "", km: 0 },
+          "Vineri": { workout: "Rest", pace: "", rest: "", km: 0 },
+          "Sâmbătă": { workout: "18k", pace: "4:55/km", rest: "", km: 18 },
+          "Duminică": { workout: "5k", pace: "5:15/km", rest: "", km: 5 }
+        },
+        bike: { km: 0, min: 0 },
+        stats: { "400m": "", "1000m": "4:07", "2000m": "4:27", "5k": "" }
+      },
+      {
+        id: "w11",
+        label: "17 - 23 Aug",
+        month: "AUGUST",
+        days: {
+          "Luni": { workout: "10x400m", pace: "3:52/km", rest: "60s", km: 4 },
+          "Marți": { workout: "5k easy", pace: "5:25/km", rest: "", km: 5 },
+          "Miercuri": { workout: "Rest", pace: "", rest: "", km: 0 },
+          "Joi": { workout: "10k prog", pace: "4:50/km", rest: "", km: 10 },
+          "Vineri": { workout: "Rest", pace: "", rest: "", km: 0 },
+          "Sâmbătă": { workout: "18k", pace: "4:50/km", rest: "", km: 18 },
+          "Duminică": { workout: "Rest", pace: "", rest: "", km: 0 }
+        },
+        bike: { km: 0, min: 0 },
+        stats: { "400m": "3:52", "1000m": "", "2000m": "", "5k": "" }
+      },
+      {
+        id: "w12",
+        label: "24 - 30 Aug",
+        month: "AUGUST",
+        days: {
+          "Luni": { workout: "3x2000m", pace: "4:23/km", rest: "2:00", km: 6 },
+          "Marți": { workout: "8k", pace: "5:15/km", rest: "", km: 8 },
+          "Miercuri": { workout: "Rest", pace: "", rest: "", km: 0 },
+          "Joi": { workout: "Rest", pace: "", rest: "", km: 0 },
+          "Vineri": { workout: "4x1000m", pace: "4:07/km", rest: "1:30", km: 4 },
+          "Sâmbătă": { workout: "Rest", pace: "", rest: "", km: 0 },
+          "Duminică": { workout: "19k Long", pace: "4:50/km", rest: "", km: 19 }
+        },
+        bike: { km: 0, min: 0 },
+        stats: { "400m": "", "1000m": "4:07", "2000m": "4:23", "5k": "" }
+      },
+      {
+        id: "w13",
+        label: "31 Aug - 6 Sept",
+        month: "SEPTEMBRIE",
+        days: {
+          "Luni": { workout: "10x400m", pace: "failed", rest: "60s", km: 4 },
+          "Marți": { workout: "Rest", pace: "", rest: "", km: 0 },
+          "Miercuri": { workout: "8k easy", pace: "5:30/km", rest: "", km: 8 },
+          "Joi": { workout: "5k race", pace: "4:51/km", rest: "", km: 5 },
+          "Vineri": { workout: "5k easy", pace: "5:30/km", rest: "", km: 5 },
+          "Sâmbătă": { workout: "Rest", pace: "", rest: "", km: 0 },
+          "Duminică": { workout: "17k", pace: "5:10/km", rest: "", km: 17 }
+        },
+        bike: { km: 0, min: 0 },
+        stats: { "400m": "failed", "1000m": "", "2000m": "", "5k": "4:51" }
+      },
+      {
+        id: "w14",
+        label: "7 - 13 Sept",
+        month: "SEPTEMBRIE",
+        days: {
+          "Luni": { workout: "3x2000m", pace: "4:28/km", rest: "2:00", km: 6 },
+          "Marți": { workout: "Rest", pace: "", rest: "", km: 0 },
+          "Miercuri": { workout: "8k", pace: "5:20/km", rest: "", km: 8 },
+          "Joi": { workout: "Rest", pace: "", rest: "", km: 0 },
+          "Vineri": { workout: "4x1000m", pace: "4:10/km", rest: "1:30", km: 4 },
+          "Sâmbătă": { workout: "Rest", pace: "", rest: "", km: 0 },
+          "Duminică": { workout: "17k", pace: "5:10/km", rest: "", km: 17 }
+        },
+        bike: { km: 0, min: 0 },
+        stats: { "400m": "", "1000m": "4:10", "2000m": "4:28", "5k": "" }
+      },
+      {
+        id: "w15",
+        label: "14 - 20 Sept",
+        month: "SEPTEMBRIE",
+        days: {
+          "Luni": { workout: "10x400m", pace: "3:59/km", rest: "60s", km: 6.1 },
+          "Marți": { workout: "Rest", pace: "", rest: "", km: 0 },
+          "Miercuri": { workout: "Rest", pace: "", rest: "", km: 0 },
+          "Joi": { workout: "Rest", pace: "", rest: "", km: 0 },
+          "Vineri": { workout: "5K tempo", pace: "4:45/km", rest: "", km: 5 },
+          "Sâmbătă": { workout: "Bike (45 min)", pace: "", rest: "", km: 0 },
+          "Duminică": { workout: "Rest", pace: "", rest: "", km: 0 }
+        },
+        bike: { km: 18.9, min: 45 },
+        stats: { "400m": "3:59", "1000m": "", "2000m": "", "5k": "4:45" }
+      }
+    ];
+
+  let runningData = [];
+    let currentWeekOffset = 0;      // Tabel principal sus (5 săptămâni)
+    let volumeOffset = 0;           // Grafice volum alergare + bike (10 săptămâni)
+    let intervalsChartOffset = 0;   // Grafic evoluție intervale (12 săptămâni)
+    let intervalsTableOffset = 0;   // Tabel rezumat intervale (9 săptămâni)
+
+    const VISIBLE_MAIN_WEEKS = 5;
+    const VISIBLE_VOLUME_WEEKS = 10;
+    const VISIBLE_CHART_INTERVALS = 15;
+    const VISIBLE_TABLE_INTERVALS = 9;
+    const DAYS = ["Luni", "Marți", "Miercuri", "Joi", "Vineri", "Sâmbătă", "Duminică"];
+
+    let runChartInstance = null;
+    let bikeChartInstance = null;
+    let intervalsChartInstance = null;
+
+    function init() {
+      const saved = localStorage.getItem("running_plan_dashboard_v11");
+      if (saved) {
+        try { runningData = JSON.parse(saved); } catch(e) { runningData = INITIAL_PLAN; }
+      } else {
+        runningData = INITIAL_PLAN;
+      }
+      autoSyncAllWeeks();
+      currentWeekOffset = Math.max(0, runningData.length - VISIBLE_MAIN_WEEKS);
+      volumeOffset = Math.max(0, runningData.length - VISIBLE_VOLUME_WEEKS);
+      intervalsChartOffset = Math.max(0, runningData.length - VISIBLE_CHART_INTERVALS);
+      intervalsTableOffset = Math.max(0, runningData.length - VISIBLE_TABLE_INTERVALS);
+      renderAll();
+    }
+
+    function save() {
+      localStorage.setItem("running_plan_dashboard_v11", JSON.stringify(runningData));
+    }
+
+    // 1. NAVIGARE DOAR PENTRU TABELUL DE SUS (5 SĂPTĂMÂNI) + VOLUM
+    
+    // NAVIGARE DOAR PENTRU GRAFICELE DE VOLUM (10 SĂPTĂMÂNI)
+    function navigateVolumeSection(dir) {
+      const maxOffset = Math.max(0, runningData.length - VISIBLE_VOLUME_WEEKS);
+      volumeOffset = Math.max(0, Math.min(maxOffset, volumeOffset + dir));
+      renderRunningVolumeChart();
+      renderBikeChart();
+    }
+
+    function navigateMainWeeks(dir) {
+      const maxOffset = Math.max(0, runningData.length - VISIBLE_MAIN_WEEKS);
+      currentWeekOffset = Math.max(0, Math.min(maxOffset, currentWeekOffset + dir));
+      renderTable();
+    }
+
+    // NAVIGARE GRAFIC INTERVALE (12 SĂPTĂMÂNI)
+    function navigateIntervalsChart(dir) {
+      const maxOffset = Math.max(0, runningData.length - VISIBLE_CHART_INTERVALS);
+      intervalsChartOffset = Math.max(0, Math.min(maxOffset, intervalsChartOffset + dir));
+      renderIntervalsChart();
+    }
+
+    // NAVIGARE TABEL INTERVALE (9 SĂPTĂMÂNI)
+    function navigateIntervalsTable(dir) {
+      const maxOffset = Math.max(0, runningData.length - VISIBLE_TABLE_INTERVALS);
+      intervalsTableOffset = Math.max(0, Math.min(maxOffset, intervalsTableOffset + dir));
+      renderIntervalsTable();
+    }
+
+    function parseKmFromWorkout(wStr, userKm) {
+      if (userKm !== undefined && userKm !== null && !isNaN(Number(userKm)) && Number(userKm) > 0) {
+        return Number(userKm);
+      }
+      if (!wStr) return 0;
+      const low = wStr.toLowerCase().trim();
+      if (low === "rest") return 0;
+
+      if (low.includes("10x400")) return 4;
+      if (low.includes("8x400")) return 3.2;
+      if (low.includes("3x2000")) {
+        if (low.includes("+ 3k")) return 9;
+        return 6;
+      }
+      if (low.includes("4x1000")) {
+        if (low.includes("+ 4k")) return 8;
+        return 4;
+      }
+      const matchK = low.match(/(\d+(\.\d+)?)\s*k/);
+      if (matchK) return parseFloat(matchK[1]);
+
+      return 0;
+    }
+
+    function calculateWeekRunningKm(w) {
+      let tot = 0;
+      DAYS.forEach(d => {
+        const cell = (w.days && w.days[d]) ? w.days[d] : null;
+        if (cell) {
+          tot += parseKmFromWorkout(cell.workout, cell.km);
+        }
+      });
+      return Math.round(tot * 10) / 10;
+    }
+
+    function renderAll() {
+      renderTable();
+      renderRunningVolumeChart();
+      renderBikeChart();
+      renderIntervalsTable();
+      renderIntervalsChart();
+    }
+
+    function renderTable() {
+      const thead = document.getElementById("weeklyTableHead");
+      const tbody = document.getElementById("weeklyTableBody");
+      const tfoot = document.getElementById("weeklyTableFoot");
+      const rangeLabel = document.getElementById("mainWeekRangeLabel");
+
+      const visibleSlice = runningData.slice(currentWeekOffset, currentWeekOffset + VISIBLE_MAIN_WEEKS);
+      rangeLabel.textContent = `Săpt ${currentWeekOffset + 1} - ${currentWeekOffset + visibleSlice.length} din ${runningData.length}`;
+
+      // Antet tabel sus (5 coloane)
+      let hHtml = `<tr><th class="py-3 px-3 w-28 text-slate-500 font-bold text-xs uppercase">Ziua</th>`;
+      visibleSlice.forEach(w => {
+        hHtml += `
+          <th class="py-3 px-3 text-center border-l border-slate-200">
+            <div class="text-[11px] font-black text-emerald-700 uppercase tracking-wider">${w.month || 'PLAN'}</div>
+            <div class="text-xs font-black text-slate-800">${w.label}</div>
+          </th>`;
+      });
+      hHtml += `</tr>`;
+      thead.innerHTML = hHtml;
+
+      // Zile Luni - Duminică
+      let bHtml = "";
+      DAYS.forEach(day => {
+        bHtml += `<tr class="hover:bg-slate-50/80 transition-colors">
+          <td class="py-2.5 px-3 font-bold text-slate-700 bg-slate-50/50 border-r border-slate-200 text-xs">${day}</td>`;
+
+        visibleSlice.forEach((w, sIdx) => {
+          const globalIdx = currentWeekOffset + sIdx;
+          const cell = (w.days && w.days[day]) ? w.days[day] : { workout: "Rest", pace: "", rest: "", km: 0 };
+          const isRest = !cell.workout || cell.workout.toLowerCase().trim() === "rest";
+          const actKm = parseKmFromWorkout(cell.workout, cell.km);
+          const kmBadge = (!isRest && actKm > 0) ? ` (${actKm} km)` : '';
+
+          bHtml += `
+            <td class="py-2 px-2 border-l border-slate-200 align-top">
+              <div onclick="editCell(${globalIdx}, '${day}')" class="p-2.5 rounded-xl cursor-pointer transition border ${isRest ? 'bg-slate-50/70 border-slate-200/70 hover:bg-slate-100 text-slate-400' : 'bg-white border-emerald-200 hover:border-emerald-400 hover:shadow-sm text-slate-800'}">
+                <div class="font-extrabold text-xs ${isRest ? 'text-slate-400' : 'text-slate-900'}">
+                  ${cell.workout ? `${cell.workout}${kmBadge}` : '—'}
+                </div>
+                ${!isRest && (cell.pace || cell.rest) ? `
+                  <div class="text-[11px] font-semibold text-slate-600 mt-1 flex flex-wrap items-center gap-1.5">
+                    ${cell.pace ? `<span class="text-emerald-700 font-bold">⏱️ ${cell.pace}</span>` : ''}
+                    ${cell.rest ? `<span class="text-slate-400 text-[10px]">(rest ${cell.rest})</span>` : ''}
+                  </div>
+                ` : ''}
+              </div>
+            </td>`;
+        });
+
+        bHtml += `</tr>`;
+      });
+      tbody.innerHTML = bHtml;
+
+      // Subsol: TOTAL KM ALERGARE + INDOOR BIKE
+      let fHtml = `
+        <tr class="bg-emerald-50/70 text-emerald-950 border-t-2 border-emerald-200">
+          <td class="py-3 px-3 font-black text-emerald-900 flex items-center gap-1.5">
+            <span>🏃</span> TOTAL KM ALERGARE
+          </td>`;
+      visibleSlice.forEach(w => {
+        const totKm = calculateWeekRunningKm(w);
+        fHtml += `<td class="py-3 px-3 text-center border-l border-emerald-200 text-sm font-black text-emerald-800">${totKm} km</td>`;
+      });
+      fHtml += `</tr>`;
+
+      // Indoor Bike: TIMPUL PRIMUL, KM ÎN PARANTEZĂ
+      fHtml += `
+        <tr class="bg-sky-50/70 text-sky-950 border-t border-sky-200">
+          <td class="py-2.5 px-3 font-bold text-sky-900 flex items-center gap-1.5">
+            <span>🚴</span> INDOOR BIKE
+          </td>`;
+      visibleSlice.forEach((w, sIdx) => {
+        const globalIdx = currentWeekOffset + sIdx;
+        const b = w.bike || { km: 0, min: 0 };
+        const hasBike = (b.km > 0 || b.min > 0);
+        fHtml += `
+          <td class="py-2.5 px-3 text-center border-l border-sky-200">
+            <button onclick="editBikeModal(${globalIdx})" class="text-xs font-extrabold px-2 py-1 rounded-lg transition ${hasBike ? 'bg-sky-600 text-white shadow-sm hover:bg-sky-700' : 'bg-white text-slate-400 border border-slate-200 hover:text-sky-600'}">
+              ${hasBike ? `${b.min} min (${b.km} km)` : '+ Adaugă Bike'}
+            </button>
+          </td>`;
+      });
+      fHtml += `</tr>`;
+
+      tfoot.innerHTML = fHtml;
+    }
+
+    
+    function extractPaceString(paceStr) {
+      if (!paceStr) return "";
+      // Extrage tiparul m:ss (ex: "3:59/km" -> "3:59", "4:45" -> "4:45")
+      const match = paceStr.match(/(\d+:\d{2})/);
+      return match ? match[1] : paceStr.replace("/km", "").trim();
+    }
+
+    function autoSyncWeekStats(w) {
+      if (!w.stats) w.stats = { "400m": "", "1000m": "", "2000m": "", "5k": "" };
+
+      DAYS.forEach(d => {
+        const cell = (w.days && w.days[d]) ? w.days[d] : null;
+        if (!cell || !cell.workout) return;
+
+        const lowW = cell.workout.toLowerCase().trim();
+        const paceVal = extractPaceString(cell.pace);
+
+        // Preia automat DOAR seriile stricte de intervale dacă au ritm numeric valid:
+        if (lowW.includes("400m") && paceVal && !w.stats["400m"].includes("fail")) {
+          w.stats["400m"] = paceVal;
+        } else if (lowW.includes("1000m") && paceVal) {
+          w.stats["1000m"] = paceVal;
+        } else if (lowW.includes("2000m") && paceVal) {
+          w.stats["2000m"] = paceVal;
+        }
+      });
+    }
+
+    function autoSyncAllWeeks() {
+      runningData.forEach(w => autoSyncWeekStats(w));
+    }
+
+    function editCell(weekIdx, day) {
+      const w = runningData[weekIdx];
+      if (!w.days) w.days = {};
+      const current = w.days[day] || { workout: "", pace: "", rest: "", km: 0 };
+
+      const newWorkout = prompt(`Antrenament pentru ${day} (${w.month} - ${w.label}):`, current.workout);
+      if (newWorkout === null) return;
+
+      let newPace = current.pace;
+      let newRest = current.rest;
+      let newKm = current.km;
+
+      if (newWorkout.trim() !== "" && newWorkout.toLowerCase().trim() !== "rest") {
+        newPace = prompt(`Ritm/Pace (ex: 4:10/km):`, current.pace || "") || "";
+        newRest = prompt(`Pauză/Rest între serii (ex: 60s sau 2:00):`, current.rest || "") || "";
+        const autoDetectedKm = parseKmFromWorkout(newWorkout, 0);
+        const kmInput = prompt(`Distanță KM efectivă (ex: 6.1 sau ${autoDetectedKm}):`, current.km || autoDetectedKm);
+        newKm = parseFloat(kmInput) || autoDetectedKm;
+      } else {
+        newPace = "";
+        newRest = "";
+        newKm = 0;
+      }
+
+      w.days[day] = {
+        workout: newWorkout.trim() || "Rest",
+        pace: newPace.trim(),
+        rest: newRest.trim(),
+        km: newKm
+      };
+
+      autoSyncWeekStats(w);
+      save();
+      renderAll();
+    }
+
+    function editBikeModal(weekIdx) {
+      const w = runningData[weekIdx];
+      if (!w.bike) w.bike = { km: 0, min: 0 };
+
+      const minStr = prompt(`Timp / Durată Indoor Bike (Minute) pentru ${w.label}:`, w.bike.min || 0);
+      if (minStr === null) return;
+      const kmStr = prompt(`Distanță Indoor Bike (KM - opțional) pentru ${w.label}:`, w.bike.km || 0);
+      if (kmStr === null) return;
+
+      w.bike.min = parseInt(minStr) || 0;
+      w.bike.km = parseFloat(kmStr) || 0;
+
+      autoSyncWeekStats(w);
+      save();
+      renderAll();
+    }
+
+    function addNewWeekPrompt() {
+      const monthInput = prompt("Introdu LUNA (ex: SEPTEMBRIE sau OCTOMBRIE):", "SEPTEMBRIE");
+      if (!monthInput || !monthInput.trim()) return;
+
+      const labelInput = prompt("Introdu intervalul de zile (ex: 21 - 27 Sept):", "21 - 27 Sept");
+      if (!labelInput || !labelInput.trim()) return;
+
+      const newWeek = {
+        id: "w_" + Date.now(),
+        label: labelInput.trim(),
+        month: monthInput.trim().toUpperCase(),
+        days: {
+          "Luni": { workout: "Rest", pace: "", rest: "", km: 0 },
+          "Marți": { workout: "Rest", pace: "", rest: "", km: 0 },
+          "Miercuri": { workout: "Rest", pace: "", rest: "", km: 0 },
+          "Joi": { workout: "Rest", pace: "", rest: "", km: 0 },
+          "Vineri": { workout: "Rest", pace: "", rest: "", km: 0 },
+          "Sâmbătă": { workout: "Rest", pace: "", rest: "", km: 0 },
+          "Duminică": { workout: "Rest", pace: "", rest: "", km: 0 }
+        },
+        bike: { km: 0, min: 0 },
+        stats: { "400m": "", "1000m": "", "2000m": "", "5k": "" }
+      };
+
+      runningData.push(newWeek);
+      autoSyncAllWeeks();
+      currentWeekOffset = Math.max(0, runningData.length - VISIBLE_MAIN_WEEKS);
+      volumeOffset = Math.max(0, runningData.length - VISIBLE_VOLUME_WEEKS);
+      intervalsChartOffset = Math.max(0, runningData.length - VISIBLE_CHART_INTERVALS);
+      intervalsTableOffset = Math.max(0, runningData.length - VISIBLE_TABLE_INTERVALS);
+      autoSyncWeekStats(w);
+      save();
+      renderAll();
+    }
+
+    function deleteWeekPrompt() {
+      if (runningData.length <= 1) {
+        alert("Nu poți șterge singura săptămână rămasă!");
+        return;
+      }
+      let msg = "Alege numărul săptămânii pe care vrei să o ștergi:\n";
+      runningData.forEach((w, i) => {
+        msg += `${i + 1}. [${w.month}] ${w.label}\n`;
+      });
+
+      const choice = prompt(msg, runningData.length);
+      if (!choice) return;
+
+      const idx = parseInt(choice) - 1;
+      if (isNaN(idx) || idx < 0 || idx >= runningData.length) {
+        alert("Număr invalid!");
+        return;
+      }
+
+      const wTarget = runningData[idx];
+      const ok = confirm(`Sigur ștergi definitiv: [${wTarget.month}] ${wTarget.label}?`);
+      if (!ok) return;
+
+      runningData.splice(idx, 1);
+      currentWeekOffset = Math.max(0, Math.min(runningData.length - VISIBLE_MAIN_WEEKS, currentWeekOffset));
+      intervalsChartOffset = Math.max(0, Math.min(runningData.length - VISIBLE_CHART_INTERVALS, intervalsChartOffset));
+      intervalsTableOffset = Math.max(0, Math.min(runningData.length - VISIBLE_TABLE_INTERVALS, intervalsTableOffset));
+      autoSyncWeekStats(w);
+      save();
+      renderAll();
+    }
+
+    // TABELUL DE INTERVALE DE JOS (SINCRONIZAT PE 8 COLOANE CU GRAFICUL DE INTERVALE)
+    function renderIntervalsTable() {
+      const thead = document.getElementById("intervalsTableHead");
+      const tbody = document.getElementById("intervalsTableBody");
+      const rangeLabel = document.getElementById("intervalsTableRangeLabel");
+
+      const visibleSlice = runningData.slice(intervalsTableOffset, intervalsTableOffset + VISIBLE_TABLE_INTERVALS);
+      if (rangeLabel) {
+        rangeLabel.textContent = `Săpt ${intervalsTableOffset + 1} - ${intervalsTableOffset + visibleSlice.length} din ${runningData.length}`;
+      }
+
+      let h = `<tr><th class="py-2.5 px-3">Tip Interval</th>`;
+      visibleSlice.forEach(w => {
+        h += `<th class="py-2.5 px-2 text-center border-l border-slate-200 text-[11px] font-bold text-slate-700">
+                <span class="text-[9px] block text-emerald-600 font-extrabold">${w.month}</span>
+                ${w.label}
+              </th>`;
+      });
+      h += `</tr>`;
+      thead.innerHTML = h;
+
+      const keys = [
+        { name: "10x400m", key: "400m", color: "text-orange-600" },
+        { name: "4x1000m", key: "1000m", color: "text-cyan-700" },
+        { name: "3x2000m", key: "2000m", color: "text-indigo-600" },
+        { name: "5K Race / Tempo", key: "5k", color: "text-emerald-600" }
+      ];
+
+      let b = "";
+      keys.forEach(k => {
+        b += `<tr class="hover:bg-slate-50"><td class="py-2.5 px-3 font-bold ${k.color}">${k.name}</td>`;
+        visibleSlice.forEach((w, sIdx) => {
+          const globalIdx = intervalsTableOffset + sIdx;
+          const val = (w.stats && w.stats[k.key]) ? w.stats[k.key] : "—";
+          b += `
+            <td onclick="editStatVal(${globalIdx}, '${k.key}')" class="py-2 px-2 text-center border-l border-slate-100 font-extrabold cursor-pointer hover:bg-slate-100 transition ${val !== '—' ? k.color : 'text-slate-300'}" title="Click pentru modificare ritm">
+              ${val}
+            </td>`;
+        });
+        b += `</tr>`;
+      });
+
+      tbody.innerHTML = b;
+    }
+
+    function editStatVal(weekIdx, key) {
+      const w = runningData[weekIdx];
+      if (!w.stats) w.stats = {};
+      const cur = w.stats[key] || "";
+      const newVal = prompt(`Ritm/Pace pentru ${key} în săptămâna (${w.label}):`, cur);
+      if (newVal === null) return;
+      w.stats[key] = newVal.trim();
+      autoSyncWeekStats(w);
+      save();
+      renderAll();
+    }
+
+    // GRAFIC 1: VOLUM ALERGARE (KM) - 5 SĂPTĂMÂNI VIZIBILE (SINCRONIZAT CU TABELUL DE SUS)
+    function renderRunningVolumeChart() {
+      const ctx = document.getElementById("runningVolumeChart");
+      if (!ctx) return;
+
+      const visibleSlice = runningData.slice(volumeOffset, volumeOffset + VISIBLE_VOLUME_WEEKS);
+            const vLabel = document.getElementById("volumeRangeLabel");
+      if (vLabel) {
+        vLabel.textContent = `Săpt ${volumeOffset + 1} - ${volumeOffset + visibleSlice.length} din ${runningData.length}`;
+      }
+      const labels = visibleSlice.map(w => w.label);
+      const kmData = visibleSlice.map(w => calculateWeekRunningKm(w));
+
+      if (runChartInstance) runChartInstance.destroy();
+      runChartInstance = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: 'KM Alergare / Săptămână',
+            data: kmData,
+            backgroundColor: 'rgba(16, 185, 129, 0.85)',
+            borderRadius: 8
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: { callbacks: { label: c => ` ${c.raw} km alergați` } }
+          },
+          scales: {
+            y: { ticks: { callback: v => v + " km" } }
+          }
+        }
+      });
+    }
+
+    // GRAFIC 2: INDOOR BIKE (MINUTE) - 5 SĂPTĂMÂNI VIZIBILE (SINCRONIZAT CU TABELUL DE SUS)
+    function renderBikeChart() {
+      const ctx = document.getElementById("bikeVolumeChart");
+      if (!ctx) return;
+
+      const visibleSlice = runningData.slice(volumeOffset, volumeOffset + VISIBLE_VOLUME_WEEKS);
+            const vLabel = document.getElementById("volumeRangeLabel");
+      if (vLabel) {
+        vLabel.textContent = `Săpt ${volumeOffset + 1} - ${volumeOffset + visibleSlice.length} din ${runningData.length}`;
+      }
+      const labels = visibleSlice.map(w => w.label);
+      const bikeMin = visibleSlice.map(w => (w.bike ? w.bike.min : 0));
+      const bikeKm = visibleSlice.map(w => (w.bike ? w.bike.km : 0));
+
+      if (bikeChartInstance) bikeChartInstance.destroy();
+      bikeChartInstance = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: 'Durată Bike (Minute)',
+            data: bikeMin,
+            backgroundColor: 'rgba(2, 132, 199, 0.85)',
+            borderRadius: 8
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              callbacks: {
+                label: function(c) {
+                  const idx = c.dataIndex;
+                  const mins = c.raw || 0;
+                  const kms = bikeKm[idx] || 0;
+                  return ` ${mins} min (${kms} km)`;
+                }
+              }
+            }
+          },
+          scales: {
+            y: {
+              ticks: { callback: v => v + " min" }
+            }
+          }
+        }
+      });
+    }
+
+    // GRAFIC 3: STATISTICI PE INTERVALE - 8 SĂPTĂMÂNI VIZIBILE (SINCRONIZAT STRICT CU TABELUL DE JOS)
+    function renderIntervalsChart() {
+      const ctx = document.getElementById("intervalsTrendChart");
+      if (!ctx) return;
+
+      const visibleSlice = runningData.slice(intervalsChartOffset, intervalsChartOffset + VISIBLE_CHART_INTERVALS);
+      const rangeLabel = document.getElementById("intervalsChartRangeLabel");
+      if (rangeLabel) {
+        rangeLabel.textContent = `Săpt ${intervalsChartOffset + 1} - ${intervalsChartOffset + visibleSlice.length} din ${runningData.length}`;
+      }
+      const labels = visibleSlice.map(w => w.label);
+
+      function toSec(str) {
+        if (!str || str === "—") return null;
+        const clean = str.replace(/[^\d:]/g, "");
+        const parts = clean.split(":");
+        if (parts.length === 2) {
+          return parseInt(parts[0]) * 60 + parseInt(parts[1]);
+        }
+        return null;
+      }
+
+      const d400 = visibleSlice.map(w => toSec(w.stats ? w.stats["400m"] : null));
+      const d1000 = visibleSlice.map(w => toSec(w.stats ? w.stats["1000m"] : null));
+      const d2000 = visibleSlice.map(w => toSec(w.stats ? w.stats["2000m"] : null));
+      const d5k = visibleSlice.map(w => toSec(w.stats ? w.stats["5k"] : null));
+
+      if (intervalsChartInstance) intervalsChartInstance.destroy();
+      intervalsChartInstance = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: labels,
+          datasets: [
+            { label: 'Pace 10x400m', data: d400, borderColor: '#EA580C', tension: 0.3, spanGaps: true, pointRadius: 5 },
+            { label: 'Pace 4x1000m', data: d1000, borderColor: '#0891B2', tension: 0.3, spanGaps: true, pointRadius: 5 },
+            { label: 'Pace 3x2000m', data: d2000, borderColor: '#4F46E5', tension: 0.3, spanGaps: true, pointRadius: 5 },
+            { label: 'Pace 5K Race', data: d5k, borderColor: '#10B981', tension: 0.3, spanGaps: true, pointRadius: 5 }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            y: {
+              reverse: true,
+              ticks: {
+                callback: function(v) {
+                  const m = Math.floor(v / 60);
+                  const s = v % 60;
+                  return m + ":" + (s < 10 ? "0" : "") + s + "/km";
+                }
+              }
+            }
+          },
+          plugins: {
+            tooltip: {
+              callbacks: {
+                label: function(c) {
+                  const v = c.raw;
+                  if (!v) return "";
+                  const m = Math.floor(v / 60);
+                  const s = v % 60;
+                  return `${c.dataset.label}: ${m}:${s < 10 ? "0" : ""}${s}/km`;
+                }
+              }
+            }
+          }
+        }
+      });
+    }
+
+    window.addEventListener("DOMContentLoaded", init);
+  </script>
+</body>
+</html>
