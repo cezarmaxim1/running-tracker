@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Running Dashboard</title>
+  <title>Running & Indoor Bike Dashboard</title>
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj48cmVjdCB3aWR0aD0iNTEyIiBoZWlnaHQ9IjUxMiIgcng9IjExNSIgZmlsbD0iIzEwQjk4MSIvPjxwYXRoIGQ9Ik0xOTAgMzUwbDUwLTcwbC00MC02MGw2MC04MGw2MCA2MGwtNDAgNjBsNTAgOTB6IiBmaWxsPSIjRkZGRkZGIi8+PC9zdmc+">
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -26,8 +26,8 @@
           🏃‍♂️
         </div>
         <div>
-          <h1 class="text-xl md:text-2xl font-black text-slate-900 tracking-tight">Training Plan</h1>
-          <p class="text-xs md:text-sm text-slate-500 font-medium">Calendar </p>
+          <h1 class="text-xl md:text-2xl font-black text-slate-900 tracking-tight">Plan Antrenamente Alergare & Indoor Bike</h1>
+          <p class="text-xs md:text-sm text-slate-500 font-medium">Calendar pe 5 săptămâni • Modul sincronizat de 8 săptămâni pentru intervale</p>
         </div>
       </div>
 
@@ -453,13 +453,54 @@
     let bikeChartInstance = null;
     let intervalsChartInstance = null;
 
-    function init() {
-      const saved = localStorage.getItem("running_plan_dashboard_v11");
-      if (saved) {
-        try { runningData = JSON.parse(saved); } catch(e) { runningData = INITIAL_PLAN; }
+
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbytrC-5-E7mc7OIDhmr0Ni4X4yU3m52ffFzetekv1nwqjeSTBmHqoFPH2Vyj31jpgmo/exec";
+
+    async function loadDataFromCloud() {
+      try {
+        const response = await fetch(SCRIPT_URL);
+        const textData = await response.text();
+        if (textData && textData.trim().startsWith("[")) {
+          const parsed = JSON.parse(textData);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            runningData = parsed;
+            localStorage.setItem("running_plan_dashboard_cloud", JSON.stringify(runningData));
+            return true;
+          }
+        }
+      } catch(e) {
+        console.error("Eroare încărcare cloud:", e);
+      }
+      return false;
+    }
+
+    async function saveDataToCloud() {
+      try {
+        await fetch(SCRIPT_URL, {
+          method: "POST",
+          mode: "no-cors",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(runningData)
+        });
+      } catch(e) {
+        console.error("Eroare salvare cloud:", e);
+      }
+    }
+
+    async function init() {
+      const savedLocal = localStorage.getItem("running_plan_dashboard_cloud");
+      if (savedLocal) {
+        try { runningData = JSON.parse(savedLocal); } catch(e) { runningData = INITIAL_PLAN; }
       } else {
         runningData = INITIAL_PLAN;
       }
+      
+      // Încercăm să aducem datele din cloud în fundal
+      const cloudSuccess = await loadDataFromCloud();
+      if (!cloudSuccess && !savedLocal) {
+        runningData = INITIAL_PLAN;
+      }
+
       autoSyncAllWeeks();
       currentWeekOffset = Math.max(0, runningData.length - VISIBLE_MAIN_WEEKS);
       volumeOffset = Math.max(0, runningData.length - VISIBLE_VOLUME_WEEKS);
@@ -469,8 +510,10 @@
     }
 
     function save() {
-      localStorage.setItem("running_plan_dashboard_v11", JSON.stringify(runningData));
+      localStorage.setItem("running_plan_dashboard_cloud", JSON.stringify(runningData));
+      saveDataToCloud();
     }
+
 
     // 1. NAVIGARE DOAR PENTRU TABELUL DE SUS (5 SĂPTĂMÂNI) + VOLUM
     
