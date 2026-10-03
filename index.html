@@ -468,6 +468,8 @@
             return true;
           }
         }
+        // Dacă în Google Sheet nu există încă date (e gol sau "[]"), salvăm automat planul inițial în cloud!
+        saveDataToCloud();
       } catch(e) {
         console.error("Eroare încărcare cloud:", e);
       }
@@ -792,7 +794,6 @@
       volumeOffset = Math.max(0, runningData.length - VISIBLE_VOLUME_WEEKS);
       intervalsChartOffset = Math.max(0, runningData.length - VISIBLE_CHART_INTERVALS);
       intervalsTableOffset = Math.max(0, runningData.length - VISIBLE_TABLE_INTERVALS);
-      autoSyncWeekStats(w);
       save();
       renderAll();
     }
@@ -824,7 +825,6 @@
       currentWeekOffset = Math.max(0, Math.min(runningData.length - VISIBLE_MAIN_WEEKS, currentWeekOffset));
       intervalsChartOffset = Math.max(0, Math.min(runningData.length - VISIBLE_CHART_INTERVALS, intervalsChartOffset));
       intervalsTableOffset = Math.max(0, Math.min(runningData.length - VISIBLE_TABLE_INTERVALS, intervalsTableOffset));
-      autoSyncWeekStats(w);
       save();
       renderAll();
     }
