@@ -32,7 +32,6 @@
       </div>
 
       <div class="flex flex-wrap items-center gap-2">
-        <!-- BUTOANE NAVIGARE TABEL PRINCIPAL DE SUS (5 SĂPTĂMÂNI) -->
         <div class="flex items-center bg-slate-100 p-1 rounded-2xl border border-slate-200 shadow-inner">
           <button type="button" onclick="navigateMainWeeks(-1)" class="w-9 h-9 flex items-center justify-center bg-white hover:bg-slate-200 text-slate-700 font-black rounded-xl shadow-sm transition active:scale-95" title="Săptămânile anterioare">
             ‹
@@ -54,7 +53,7 @@
       </div>
     </header>
 
-    <!-- 1. TABELUL PRINCIPAL: PROGRAM PE ZILE (5 COLOANE SĂPTĂMÂNALE) -->
+    <!-- 1. TABELUL PRINCIPAL: PROGRAM PE ZILE -->
     <section class="bg-white rounded-2xl p-4 md:p-6 border border-slate-200 shadow-sm space-y-4">
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-slate-100">
         <div>
@@ -63,8 +62,8 @@
           </h2>
           <p class="text-xs text-slate-500">Afișează antrenamentul, distanța efectivă (km), ritmul și pauza</p>
         </div>
-        <span class="text-xs font-semibold px-2.5 py-1 bg-emerald-50 text-emerald-700 rounded-lg border border-emerald-200 self-start sm:self-auto">
-          Salvat local ✓
+        <span id="syncStatusBadge" class="text-xs font-semibold px-2.5 py-1 bg-slate-100 text-slate-600 rounded-lg border border-slate-200 self-start sm:self-auto transition-colors">
+          Se sincronizează...
         </span>
       </div>
 
@@ -77,7 +76,7 @@
       </div>
     </section>
 
-    <!-- 2. SECȚIUNE GRAFICE DE VOLUM (ALERGARE KM & INDOOR BIKE TIMP) - 10 COLOANE INDEPENDENTE -->
+    <!-- 2. SECȚIUNE GRAFICE DE VOLUM -->
     <section class="bg-white rounded-2xl p-4 md:p-6 border border-slate-200 shadow-sm space-y-5">
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100">
         <div>
@@ -87,7 +86,6 @@
           <p class="text-xs text-slate-500">Vizualizare comparativă pe 10 săptămâni, independentă de calendarul de sus</p>
         </div>
 
-        <!-- BUTOANE NAVIGARE DEDICATE CELOR 2 GRAFICE DE VOLUM (10 SĂPTĂMÂNI) -->
         <div class="flex items-center bg-slate-100 p-1 rounded-2xl border border-slate-200 shadow-inner self-start sm:self-auto">
           <button type="button" onclick="navigateVolumeSection(-1)" class="w-8 h-8 flex items-center justify-center bg-white hover:bg-slate-200 text-slate-700 font-black rounded-xl shadow-sm transition active:scale-95" title="Săptămâni anterioare volume">
             ‹
@@ -102,7 +100,6 @@
       </div>
 
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <!-- VOLUM SĂPTĂMÂNAL ALERGARE (KM) -->
         <div class="space-y-2">
           <div class="flex items-center justify-between pb-1">
             <h3 class="text-xs font-bold uppercase tracking-wider text-slate-800 flex items-center gap-1.5">
@@ -115,7 +112,6 @@
           </div>
         </div>
 
-        <!-- INDOOR BIKE (STRICT PE BAZĂ DE TIMP / DURATĂ) -->
         <div class="space-y-2">
           <div class="flex items-center justify-between pb-1">
             <h3 class="text-xs font-bold uppercase tracking-wider text-slate-800 flex items-center gap-1.5">
@@ -130,7 +126,7 @@
       </div>
     </section>
 
-    <!-- 3. GRAFIC EVOLUȚIE INTERVALE (12 COLOANE CU NAVIGARE SEPARATĂ) -->
+    <!-- 3. GRAFIC EVOLUȚIE INTERVALE (15 COLOANE) -->
     <section class="bg-white rounded-2xl p-4 md:p-6 border border-slate-200 shadow-sm space-y-4">
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-2 border-b border-slate-100">
         <div>
@@ -140,7 +136,6 @@
           <p class="text-xs text-slate-500">Pace / Viteză pe serii (10x400m, 4x1000m, 3x2000m, 5K) • Navigare independentă</p>
         </div>
         
-        <!-- BUTOANE NAVIGARE DOAR PENTRU GRAFICUL DE INTERVALE (15 SĂPTĂMÂNI) -->
         <div class="flex items-center bg-slate-100 p-1 rounded-2xl border border-slate-200 shadow-inner self-start sm:self-auto">
           <button type="button" onclick="navigateIntervalsChart(-1)" class="w-8 h-8 flex items-center justify-center bg-white hover:bg-slate-200 text-slate-700 font-black rounded-xl shadow-sm transition active:scale-95" title="Săptămâni anterioare grafic">
             ‹
@@ -159,7 +154,7 @@
       </div>
     </section>
 
-    <!-- 4. TABEL REZUMAT INTERVALE (9 COLOANE CU NAVIGARE SEPARATĂ) -->
+    <!-- 4. TABEL REZUMAT INTERVALE (9 COLOANE) -->
     <section class="bg-white rounded-2xl p-4 md:p-6 border border-slate-200 shadow-sm space-y-4">
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-2 border-b border-slate-100">
         <div>
@@ -169,7 +164,6 @@
           <p class="text-xs text-slate-500">Valorile exacte de ritm pe fiecare săptămână • Click pe celulă pentru ajustare manuală</p>
         </div>
         
-        <!-- BUTOANE NAVIGARE DOAR PENTRU TABELUL DE INTERVALE (9 SĂPTĂMÂNI) -->
         <div class="flex items-center bg-slate-100 p-1 rounded-2xl border border-slate-200 shadow-inner self-start sm:self-auto">
           <button type="button" onclick="navigateIntervalsTable(-1)" class="w-8 h-8 flex items-center justify-center bg-white hover:bg-slate-200 text-slate-700 font-black rounded-xl shadow-sm transition active:scale-95" title="Săptămâni anterioare tabel">
             ‹
@@ -437,11 +431,11 @@
       }
     ];
 
-  let runningData = [];
-    let currentWeekOffset = 0;      // Tabel principal sus (5 săptămâni)
-    let volumeOffset = 0;           // Grafice volum alergare + bike (10 săptămâni)
-    let intervalsChartOffset = 0;   // Grafic evoluție intervale (12 săptămâni)
-    let intervalsTableOffset = 0;   // Tabel rezumat intervale (9 săptămâni)
+    let runningData = [];
+    let currentWeekOffset = 0;
+    let volumeOffset = 0;
+    let intervalsChartOffset = 0;
+    let intervalsTableOffset = 0;
 
     const VISIBLE_MAIN_WEEKS = 5;
     const VISIBLE_VOLUME_WEEKS = 10;
@@ -453,8 +447,22 @@
     let bikeChartInstance = null;
     let intervalsChartInstance = null;
 
-
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbytrC-5-E7mc7OIDhmr0Ni4X4yU3m52ffFzetekv1nwqjeSTBmHqoFPH2Vyj31jpgmo/exec";
+
+    function updateBadge(status) {
+      const b = document.getElementById("syncStatusBadge");
+      if (!b) return;
+      if (status === "syncing") {
+        b.textContent = "Se sincronizează...";
+        b.className = "text-xs font-semibold px-2.5 py-1 bg-amber-50 text-amber-700 rounded-lg border border-amber-200 self-start sm:self-auto transition-colors";
+      } else if (status === "synced") {
+        b.textContent = "Sincronizat ✓";
+        b.className = "text-xs font-semibold px-2.5 py-1 bg-emerald-50 text-emerald-700 rounded-lg border border-emerald-200 self-start sm:self-auto transition-colors";
+      } else if (status === "offline") {
+        b.textContent = "Salvat local ✓";
+        b.className = "text-xs font-semibold px-2.5 py-1 bg-slate-100 text-slate-700 rounded-lg border border-slate-200 self-start sm:self-auto transition-colors";
+      }
+    }
 
     async function loadDataFromCloud() {
       try {
@@ -465,50 +473,61 @@
           if (Array.isArray(parsed) && parsed.length > 0) {
             runningData = parsed;
             localStorage.setItem("running_plan_dashboard_cloud", JSON.stringify(runningData));
-            return true;
+            updateOffsetsToCurrent();
+            renderAll();
+            updateBadge("synced");
+            return;
           }
         }
-        // Dacă în Google Sheet nu există încă date (e gol sau "[]"), salvăm automat planul inițial în cloud!
         saveDataToCloud();
+        updateBadge("synced");
       } catch(e) {
         console.error("Eroare încărcare cloud:", e);
+        updateBadge("offline");
       }
-      return false;
     }
 
     async function saveDataToCloud() {
       try {
+        updateBadge("syncing");
         await fetch(SCRIPT_URL, {
           method: "POST",
           mode: "no-cors",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(runningData)
         });
+        updateBadge("synced");
       } catch(e) {
         console.error("Eroare salvare cloud:", e);
+        updateBadge("offline");
       }
     }
 
-    async function init() {
-      const savedLocal = localStorage.getItem("running_plan_dashboard_cloud");
-      if (savedLocal) {
-        try { runningData = JSON.parse(savedLocal); } catch(e) { runningData = INITIAL_PLAN; }
-      } else {
-        runningData = INITIAL_PLAN;
-      }
-      
-      // Încercăm să aducem datele din cloud în fundal
-      const cloudSuccess = await loadDataFromCloud();
-      if (!cloudSuccess && !savedLocal) {
-        runningData = INITIAL_PLAN;
-      }
-
-      autoSyncAllWeeks();
+    function updateOffsetsToCurrent() {
       currentWeekOffset = Math.max(0, runningData.length - VISIBLE_MAIN_WEEKS);
       volumeOffset = Math.max(0, runningData.length - VISIBLE_VOLUME_WEEKS);
       intervalsChartOffset = Math.max(0, runningData.length - VISIBLE_CHART_INTERVALS);
       intervalsTableOffset = Math.max(0, runningData.length - VISIBLE_TABLE_INTERVALS);
+    }
+
+    function init() {
+      const savedLocal = localStorage.getItem("running_plan_dashboard_cloud");
+      if (savedLocal) {
+        try {
+          runningData = JSON.parse(savedLocal);
+        } catch(e) {
+          runningData = INITIAL_PLAN;
+        }
+      } else {
+        runningData = INITIAL_PLAN;
+      }
+
+      autoSyncAllWeeks();
+      updateOffsetsToCurrent();
       renderAll();
+      updateBadge("syncing");
+
+      loadDataFromCloud();
     }
 
     function save() {
@@ -516,10 +535,6 @@
       saveDataToCloud();
     }
 
-
-    // 1. NAVIGARE DOAR PENTRU TABELUL DE SUS (5 SĂPTĂMÂNI) + VOLUM
-    
-    // NAVIGARE DOAR PENTRU GRAFICELE DE VOLUM (10 SĂPTĂMÂNI)
     function navigateVolumeSection(dir) {
       const maxOffset = Math.max(0, runningData.length - VISIBLE_VOLUME_WEEKS);
       volumeOffset = Math.max(0, Math.min(maxOffset, volumeOffset + dir));
@@ -533,14 +548,12 @@
       renderTable();
     }
 
-    // NAVIGARE GRAFIC INTERVALE (12 SĂPTĂMÂNI)
     function navigateIntervalsChart(dir) {
       const maxOffset = Math.max(0, runningData.length - VISIBLE_CHART_INTERVALS);
       intervalsChartOffset = Math.max(0, Math.min(maxOffset, intervalsChartOffset + dir));
       renderIntervalsChart();
     }
 
-    // NAVIGARE TABEL INTERVALE (9 SĂPTĂMÂNI)
     function navigateIntervalsTable(dir) {
       const maxOffset = Math.max(0, runningData.length - VISIBLE_TABLE_INTERVALS);
       intervalsTableOffset = Math.max(0, Math.min(maxOffset, intervalsTableOffset + dir));
@@ -557,14 +570,8 @@
 
       if (low.includes("10x400")) return 4;
       if (low.includes("8x400")) return 3.2;
-      if (low.includes("3x2000")) {
-        if (low.includes("+ 3k")) return 9;
-        return 6;
-      }
-      if (low.includes("4x1000")) {
-        if (low.includes("+ 4k")) return 8;
-        return 4;
-      }
+      if (low.includes("3x2000")) return low.includes("+ 3k") ? 9 : 6;
+      if (low.includes("4x1000")) return low.includes("+ 4k") ? 8 : 4;
       const matchK = low.match(/(\d+(\.\d+)?)\s*k/);
       if (matchK) return parseFloat(matchK[1]);
 
@@ -599,7 +606,6 @@
       const visibleSlice = runningData.slice(currentWeekOffset, currentWeekOffset + VISIBLE_MAIN_WEEKS);
       rangeLabel.textContent = `Săpt ${currentWeekOffset + 1} - ${currentWeekOffset + visibleSlice.length} din ${runningData.length}`;
 
-      // Antet tabel sus (5 coloane)
       let hHtml = `<tr><th class="py-3 px-3 w-28 text-slate-500 font-bold text-xs uppercase">Ziua</th>`;
       visibleSlice.forEach(w => {
         hHtml += `
@@ -611,7 +617,6 @@
       hHtml += `</tr>`;
       thead.innerHTML = hHtml;
 
-      // Zile Luni - Duminică
       let bHtml = "";
       DAYS.forEach(day => {
         bHtml += `<tr class="hover:bg-slate-50/80 transition-colors">
@@ -639,12 +644,10 @@
               </div>
             </td>`;
         });
-
         bHtml += `</tr>`;
       });
       tbody.innerHTML = bHtml;
 
-      // Subsol: TOTAL KM ALERGARE + INDOOR BIKE
       let fHtml = `
         <tr class="bg-emerald-50/70 text-emerald-950 border-t-2 border-emerald-200">
           <td class="py-3 px-3 font-black text-emerald-900 flex items-center gap-1.5">
@@ -656,7 +659,6 @@
       });
       fHtml += `</tr>`;
 
-      // Indoor Bike: TIMPUL PRIMUL, KM ÎN PARANTEZĂ
       fHtml += `
         <tr class="bg-sky-50/70 text-sky-950 border-t border-sky-200">
           <td class="py-2.5 px-3 font-bold text-sky-900 flex items-center gap-1.5">
@@ -678,10 +680,8 @@
       tfoot.innerHTML = fHtml;
     }
 
-    
     function extractPaceString(paceStr) {
       if (!paceStr) return "";
-      // Extrage tiparul m:ss (ex: "3:59/km" -> "3:59", "4:45" -> "4:45")
       const match = paceStr.match(/(\d+:\d{2})/);
       return match ? match[1] : paceStr.replace("/km", "").trim();
     }
@@ -696,7 +696,6 @@
         const lowW = cell.workout.toLowerCase().trim();
         const paceVal = extractPaceString(cell.pace);
 
-        // Preia automat DOAR seriile stricte de intervale dacă au ritm numeric valid:
         if (lowW.includes("400m") && paceVal && !w.stats["400m"].includes("fail")) {
           w.stats["400m"] = paceVal;
         } else if (lowW.includes("1000m") && paceVal) {
@@ -790,10 +789,7 @@
 
       runningData.push(newWeek);
       autoSyncAllWeeks();
-      currentWeekOffset = Math.max(0, runningData.length - VISIBLE_MAIN_WEEKS);
-      volumeOffset = Math.max(0, runningData.length - VISIBLE_VOLUME_WEEKS);
-      intervalsChartOffset = Math.max(0, runningData.length - VISIBLE_CHART_INTERVALS);
-      intervalsTableOffset = Math.max(0, runningData.length - VISIBLE_TABLE_INTERVALS);
+      updateOffsetsToCurrent();
       save();
       renderAll();
     }
@@ -829,7 +825,6 @@
       renderAll();
     }
 
-    // TABELUL DE INTERVALE DE JOS (SINCRONIZAT PE 8 COLOANE CU GRAFICUL DE INTERVALE)
     function renderIntervalsTable() {
       const thead = document.getElementById("intervalsTableHead");
       const tbody = document.getElementById("intervalsTableBody");
@@ -886,13 +881,12 @@
       renderAll();
     }
 
-    // GRAFIC 1: VOLUM ALERGARE (KM) - 5 SĂPTĂMÂNI VIZIBILE (SINCRONIZAT CU TABELUL DE SUS)
     function renderRunningVolumeChart() {
       const ctx = document.getElementById("runningVolumeChart");
       if (!ctx) return;
 
       const visibleSlice = runningData.slice(volumeOffset, volumeOffset + VISIBLE_VOLUME_WEEKS);
-            const vLabel = document.getElementById("volumeRangeLabel");
+      const vLabel = document.getElementById("volumeRangeLabel");
       if (vLabel) {
         vLabel.textContent = `Săpt ${volumeOffset + 1} - ${volumeOffset + visibleSlice.length} din ${runningData.length}`;
       }
@@ -925,13 +919,12 @@
       });
     }
 
-    // GRAFIC 2: INDOOR BIKE (MINUTE) - 5 SĂPTĂMÂNI VIZIBILE (SINCRONIZAT CU TABELUL DE SUS)
     function renderBikeChart() {
       const ctx = document.getElementById("bikeVolumeChart");
       if (!ctx) return;
 
       const visibleSlice = runningData.slice(volumeOffset, volumeOffset + VISIBLE_VOLUME_WEEKS);
-            const vLabel = document.getElementById("volumeRangeLabel");
+      const vLabel = document.getElementById("volumeRangeLabel");
       if (vLabel) {
         vLabel.textContent = `Săpt ${volumeOffset + 1} - ${volumeOffset + visibleSlice.length} din ${runningData.length}`;
       }
@@ -976,7 +969,6 @@
       });
     }
 
-    // GRAFIC 3: STATISTICI PE INTERVALE - 8 SĂPTĂMÂNI VIZIBILE (SINCRONIZAT STRICT CU TABELUL DE JOS)
     function renderIntervalsChart() {
       const ctx = document.getElementById("intervalsTrendChart");
       if (!ctx) return;
